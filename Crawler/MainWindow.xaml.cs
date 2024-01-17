@@ -15,6 +15,7 @@ using System.Threading;
 using System.IO;
 using OpenQA.Selenium.DevTools;
 using OpenQA.Selenium.DevTools.V112.Accessibility;
+using System.Net;
 
 namespace Crawler
 {
@@ -192,18 +193,31 @@ namespace Crawler
             for (int i = 0; i < childs.Count; i++)
             {
                 if (count >= quantity) break;
-                string url = childs[i].GetAttribute("src");
-                if (url != null)
+                if (childs[i].GetAttribute("jsname") == "Q4LuWd")
                 {
-                    if (childs[i].GetAttribute("jsname") == "Q4LuWd")
+                    childs[i].Click();
+                    Thread.Sleep(1000);
+                    IWebElement fullImg = driver.FindElement(By.Id("Sva75c"));
+                    fullImg = fullImg.FindElement(By.XPath(".//div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a"));
+                    List<IWebElement> list = fullImg.FindElements(By.TagName("img")).ToList();
+                    string url = list[0].GetAttribute("src");
+                    if (url.Contains("https"))
                     {
-                        childs[i].Click();
-                        IWebElement fullImg = driver.FindElement(By.Id("Sva75c"));
-                        fullImg = driver.FindElement(By.XPath("/html/body/div[2]/c-wiz/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img"));
-                                                             ///html/body/div[2]/c-wiz/div[3]/div[2]/div[3]
-                        count++;
-                        Thread.Sleep(500);
+                        byte[] imageBytes = DownloadImage(url);
+
+                        // Lưu dữ liệu binary thành tệp tin hình ảnh
+                        File.WriteAllBytes($"ImgStorage/{target}-fullres/{target}{count + 1}.jpg", imageBytes);
                     }
+                    else
+                    {
+                        url = url.Split(',')[1];
+                        byte[] imageBytes = Convert.FromBase64String(url);
+
+                        // Lưu dữ liệu binary thành tệp tin hình ảnh
+                        File.WriteAllBytes($"ImgStorage/{target}-fullres/{target}{count + 1}.jpg", imageBytes);
+                    }
+                    count++;
+                    Thread.Sleep(500);
                 }
             }
             MessageBox.Show("Done crawling.", "Thông báo");
@@ -233,6 +247,14 @@ namespace Crawler
                 }
             }
             tbCount.Text = quant;
+        }
+
+        static byte[] DownloadImage(string imageUrl)
+        {
+            using (WebClient webClient = new WebClient())
+            {
+                return webClient.DownloadData(imageUrl);
+            }
         }
     }
 }
