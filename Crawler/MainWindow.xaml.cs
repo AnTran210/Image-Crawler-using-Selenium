@@ -16,6 +16,7 @@ using System.IO;
 using OpenQA.Selenium.DevTools;
 using OpenQA.Selenium.DevTools.V112.Accessibility;
 using System.Net;
+using System.Diagnostics;
 
 namespace Crawler
 {
@@ -102,6 +103,7 @@ namespace Crawler
 
         private void thumbnail()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             // Khởi tạo crawler
             ChromeDriver driver = new ChromeDriver();
             driver.Url = "https://images.google.com/";
@@ -152,11 +154,15 @@ namespace Crawler
                     }
                 }
             }
-            MessageBox.Show("Done crawling.", "Thông báo");
+            stopwatch.Stop();
+
+            TimeSpan elapsedTime = stopwatch.Elapsed;
+            MessageBox.Show($"Done crawling. Runtime: {elapsedTime.TotalMilliseconds} ms", "Thông báo");
         }
 
         private void fullRes()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             // Khởi tạo crawler
             ChromeDriver driver = new ChromeDriver();
             driver.Url = "https://images.google.com/";
@@ -220,7 +226,10 @@ namespace Crawler
                     Thread.Sleep(500);
                 }
             }
-            MessageBox.Show("Done crawling.", "Thông báo");
+            stopwatch.Stop();
+
+            TimeSpan elapsedTime = stopwatch.Elapsed;
+            MessageBox.Show($"Done crawling. Runtime: {elapsedTime.TotalMilliseconds} ms", "Thông báo");
         }
 
         private void autoCrawl(object sender, RoutedEventArgs e)
